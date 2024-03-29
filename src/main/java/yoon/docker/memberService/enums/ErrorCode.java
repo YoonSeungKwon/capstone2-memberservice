@@ -33,7 +33,7 @@ public enum ErrorCode {
 
     INVALID_PASSWORD("이메일 또는 비밀번호가 일치하지 않습니다.", HttpStatus.UNAUTHORIZED),
 
-
+    INTERNAL_SERVER_ERROR("알 수 없는 에러. 개발자에게 알려주세요.", HttpStatus.INTERNAL_SERVER_ERROR),
 
     ;
 
