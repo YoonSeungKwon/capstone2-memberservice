@@ -9,6 +9,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class MemberResponse {
 
+    private long idx;
+
     private String email;
 
     private String name;

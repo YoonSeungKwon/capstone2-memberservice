@@ -1,0 +1,37 @@
+services:
+  member-svc:
+    container_name: member-svc
+    build:
+      context: /memberService
+    depends_on:
+      - mydb
+    ports:
+      - 8080:8080
+    networks:
+      - ysg
+    environment:
+      - MARIADB_DB_HOST=mydb
+      - MARIADB_DB_PORT=3306
+      - MARIADB_DB_USER=root
+      - MARIADB_DB_PASSWORD=1149
+      - JWT_SECRET=dbstmdrnjsdmlxptmxmehzjtjqjqlalfzlzhem
+      - JWT_ACC=30
+      - JWT_REF=3
+    image: yoonseungkwon/memberservice_cap2:latest
+  mydb:
+    image: mariadb
+    container_name: mydb
+    environment:
+      MYSQL_ROOT_PASSWORD: 1149
+    volumes:
+      - database:/var/lib/mysql
+    ports:
+      - 3306:3306
+    networks:
+      - ysg
+
+volumes:
+  database:
+
+networks:
+  ysg:

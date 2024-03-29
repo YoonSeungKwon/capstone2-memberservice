@@ -6,6 +6,8 @@ import org.springframework.http.HttpStatus;
 @Getter
 public enum ErrorCode {
 
+    //회원가입 에러코드
+
     INVALID_EMAIL_FORMAT("잘못된 이메일 형식.", HttpStatus.BAD_REQUEST),
 
     EMPTY_EMAIL_FIELD("이메일을 입력해 주세요.", HttpStatus.BAD_REQUEST),
@@ -22,7 +24,17 @@ public enum ErrorCode {
 
     EMPTY_PHONE_NUMBER("전화번호를 입력해 주세요.", HttpStatus.BAD_REQUEST),
 
-    INVALID_PHONE_NUMBER("전화번호를 올바르게 입력해 주세요.", HttpStatus.BAD_REQUEST)
+    INVALID_PHONE_NUMBER("전화번호를 올바르게 입력해 주세요.", HttpStatus.BAD_REQUEST),
+
+
+    //로그인 에러코드
+
+    EMAIL_NOT_FOUND("존재하지 않는 이메일 주소입니다.", HttpStatus.UNAUTHORIZED),
+
+    INVALID_PASSWORD("이메일 또는 비밀번호가 일치하지 않습니다.", HttpStatus.UNAUTHORIZED),
+
+
+
     ;
 
 
