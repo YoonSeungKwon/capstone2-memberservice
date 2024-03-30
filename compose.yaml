@@ -17,7 +17,8 @@ services:
       - JWT_SECRET=dbstmdrnjsdmlxptmxmehzjtjqjqlalfzlzhem
       - JWT_ACC=30
       - JWT_REF=3
-    image: yoonseungkwon/memberservice_cap2:latest
+      - ALLOW_ORIGIN=http://localhost:3000
+    image: yoonseungkwon/member-api:latest
   mydb:
     image: mariadb
     container_name: mydb

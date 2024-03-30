@@ -9,12 +9,12 @@ import yoon.docker.memberService.validation.ValidationGroup;
 @Getter
 public class MemberLoginDto {
 
-    @Schema(description = "이메일")
+    @Schema(description = "이메일", example = "example@example.com")
     @Email(message = "INVALID_EMAIL_FORMAT", groups = ValidationGroup.EmailFormat.class)
     @NotBlank(message = "EMPTY_EMAIL_FIELD", groups = ValidationGroup.EmailBlank.class)
     private String email;
 
-    @Schema(description = "비밀번호")
+    @Schema(description = "비밀번호", example = "abcd1234")
     @NotBlank(message = "EMPTY_PASSWORD_FIELD", groups = ValidationGroup.PhoneBlank.class)
     private String password;
 
