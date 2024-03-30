@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import yoon.docker.memberService.dto.request.MemberLoginDto;
 import yoon.docker.memberService.dto.request.MemberRegisterDto;
+import yoon.docker.memberService.dto.request.MemberUpdateDto;
 import yoon.docker.memberService.dto.response.MemberResponse;
 import yoon.docker.memberService.entity.Members;
 import yoon.docker.memberService.enums.Role;
@@ -38,6 +39,13 @@ public class MemberService {
 
     public boolean emailCheck(String email){
         return memberRepository.existsMembersByEmail(email);
+    }
+
+    public boolean checkPassword(MemberLoginDto dto){
+        String email = dto.getEmail();
+        String password = dto.getPassword();
+
+        return passwordEncoder.matches(password, memberRepository.findMembersByEmail(email).getPassword());
     }
 
     public MemberResponse getMember(long idx){
@@ -73,6 +81,7 @@ public class MemberService {
         return toResponse(memberRepository.save(members));
     }
 
+    @Transactional
     public MemberResponse login(MemberLoginDto dto, HttpServletResponse response){
         String email = dto.getEmail();
         String password = dto.getPassword();
@@ -101,6 +110,28 @@ public class MemberService {
         return toResponse(memberRepository.save(members));
     }
 
+    @Transactional
+    public MemberResponse updatePassword(long idx, MemberUpdateDto dto){
+        String password = dto.getPassword();
+
+        Members members = memberRepository.findMembersByMemberIdx(idx);
+
+        members.setPassword(passwordEncoder.encode(password));
+
+        return toResponse(members);
+    }
+
+    @Transactional
+    public MemberResponse updateProfile(long idx, String profile){
+
+        Members members = memberRepository.findMembersByMemberIdx(idx);
+
+        members.setProfile(profile);
+
+        return toResponse(members);
+    }
+
+    @Transactional
     public void deleteMember(long idx){
 
         memberRepository.deleteByMemberIdx(idx);

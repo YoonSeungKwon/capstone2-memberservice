@@ -18,7 +18,7 @@ public enum ErrorCode {
 
     EMPTY_PASSWORD_FIELD("비밀번호를 입력해 주세요.", HttpStatus.BAD_REQUEST),
 
-    INVALID_PASSWORD_LENGTH("비밀번호는 최소 00자 이상이어야 합니다.", HttpStatus.BAD_REQUEST),
+    INVALID_PASSWORD_LENGTH("비밀번호는 최소 8자리 이상이어야 합니다.", HttpStatus.BAD_REQUEST),
 
     EMPTY_USERNAME_FIELD("이름을 입력해 주세요.", HttpStatus.BAD_REQUEST),
 
