@@ -67,6 +67,15 @@ public class MemberService {
         return result;
     }
 
+    public List<MemberResponse> getFriendList(List<Long> list){
+        List<Members> members = memberRepository.findMembersByMemberIdxIn(list);
+        List<MemberResponse> response = new ArrayList<>();
+        for(Members m: members){
+            response.add(toResponse(m));
+        }
+        return response;
+    }
+
     @Transactional
     public MemberResponse register(MemberRegisterDto dto){
 

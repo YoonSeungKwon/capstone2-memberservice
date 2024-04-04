@@ -20,6 +20,7 @@ import yoon.docker.memberService.validation.RegisterValidationSequence;
 import yoon.docker.memberService.validation.UpdateValidationSequence;
 
 import java.util.List;
+import java.util.Map;
 
 @Tag(name="멤버관련 API", description = "version1")
 @RestController
@@ -29,11 +30,21 @@ public class MemberController {
 
     private final MemberService memberService;
 
+
     @Operation(description = "관리자용 멤버 리스트 불러오기")
     @GetMapping("/lists")
     public ResponseEntity<List<MemberResponse>> getMembersList(){
 
         List<MemberResponse> result = memberService.getMembersList();
+
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    @Operation(description = "관리자용 멤버 리스트 불러오기")
+    @PostMapping("/lists")
+    public ResponseEntity<List<MemberResponse>> getFriendMembersList(@RequestBody List<Long> idxList){
+
+        List<MemberResponse> result = memberService.getFriendList(idxList);
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }

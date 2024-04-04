@@ -4,6 +4,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import yoon.docker.memberService.entity.Members;
 
+import java.util.List;
+
 @Repository
 public interface MemberRepository extends JpaRepository<Members, Long> {
 
@@ -16,5 +18,7 @@ public interface MemberRepository extends JpaRepository<Members, Long> {
     void deleteByMemberIdx(long idx);
 
     Members findMembersByRefresh(String token);
+
+    List<Members> findMembersByMemberIdxIn(List<Long> list);
 
 }
