@@ -20,7 +20,6 @@ import yoon.docker.memberService.validation.RegisterValidationSequence;
 import yoon.docker.memberService.validation.UpdateValidationSequence;
 
 import java.util.List;
-import java.util.Map;
 
 @Tag(name="멤버관련 API", description = "version1")
 @RestController
@@ -31,7 +30,7 @@ public class MemberController {
     private final MemberService memberService;
 
 
-    @Operation(description = "관리자용 멤버 리스트 불러오기")
+    @Operation(summary = "관리자용 멤버 리스트 불러오기")
     @GetMapping("/lists")
     public ResponseEntity<List<MemberResponse>> getMembersList(){
 
@@ -40,7 +39,7 @@ public class MemberController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
-    @Operation(description = "관리자용 멤버 리스트 불러오기")
+    @Operation(summary = "관리자용 멤버 리스트 불러오기")
     @PostMapping("/lists")
     public ResponseEntity<List<MemberResponse>> getFriendMembersList(@RequestBody List<Long> idxList){
 
@@ -49,7 +48,7 @@ public class MemberController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
-    @Operation(description = "관리자용 멤버 개인 불러오기")
+    @Operation(summary = "관리자용 멤버 개인 불러오기")
     @GetMapping("/{idx}")
     public ResponseEntity<MemberResponse> getMembersList(@io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "유저 인덱스", required = true) @PathVariable long idx){
@@ -59,7 +58,7 @@ public class MemberController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
-    @Operation(description = "이메일 중복 체크")
+    @Operation(summary = "이메일 중복 체크")
     @PostMapping("/check-email")
     public ResponseEntity<Boolean> checkEmail(@RequestBody String email){
 
@@ -68,7 +67,7 @@ public class MemberController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
-    @Operation(description = "비밀번호 확인")
+    @Operation(summary = "비밀번호 확인")
     @PostMapping("/auth")
     public ResponseEntity<Boolean> checkPassword(@io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "유저 로그인 정보", required = true, content = @Content(mediaType = "application/json"
@@ -80,7 +79,7 @@ public class MemberController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
-    @Operation(description = "회원가입")
+    @Operation(summary = "회원가입")
     @PostMapping("/register")
     public ResponseEntity<MemberResponse> memberRegister(@io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "유저 회원가입 정보", required = true, content = @Content(mediaType = "application/json"
@@ -92,7 +91,7 @@ public class MemberController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @Operation(description = "로그인")
+    @Operation(summary = "로그인")
     @PostMapping("/login")
     public ResponseEntity<MemberResponse> memberLogin(@io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "유저 로그인 정보", required = true, content = @Content(mediaType = "application/json"
@@ -104,7 +103,7 @@ public class MemberController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
-    @Operation(description = "회원 정보 수정 비밀번호")
+    @Operation(summary = "회원 정보 수정 비밀번호")
     @PutMapping("/{idx}")
     public ResponseEntity<MemberResponse> updatePassword(@io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "비밀 번호", required = true, content = @Content(mediaType = "application/json"
@@ -116,7 +115,7 @@ public class MemberController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
-    @Operation(description = "회원 정보 수정 프로필 사진")
+    @Operation(summary = "회원 정보 수정 프로필 사진")
     @PutMapping("/profile/{idx}")
     public ResponseEntity<MemberResponse> updateProfile(@io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "아직 스토리지 서버가 없어서 미구현 상태, 문자로 저장 가능", required = true, content = @Content(mediaType = "application/json"
@@ -129,7 +128,7 @@ public class MemberController {
     }
 
 
-    @Operation(description = "관리자용 유저 삭제")
+    @Operation(summary = "관리자용 유저 삭제")
     @DeleteMapping("/{idx}")
     public ResponseEntity<?> deleteMember(@io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "유저 인덱스", required = true) @PathVariable long idx){
