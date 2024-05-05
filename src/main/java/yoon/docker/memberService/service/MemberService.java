@@ -15,7 +15,9 @@ import yoon.docker.memberService.dto.request.MemberRegisterDto;
 import yoon.docker.memberService.dto.request.MemberUpdateDto;
 import yoon.docker.memberService.dto.response.MemberResponse;
 import yoon.docker.memberService.entity.Members;
+import yoon.docker.memberService.enums.ExceptionCode;
 import yoon.docker.memberService.enums.Role;
+import yoon.docker.memberService.exception.UnAuthorizedException;
 import yoon.docker.memberService.repository.MemberRepository;
 import yoon.docker.memberService.security.jwt.JwtProvider;
 
@@ -37,10 +39,12 @@ public class MemberService {
                 , members.getProfile(), members.getCreatedAt(), members.getUpdatedAt());
     }
 
+    @Transactional(readOnly = true)
     public boolean emailCheck(String email){
         return memberRepository.existsMembersByEmail(email);
     }
 
+    @Transactional(readOnly = true)
     public boolean checkPassword(MemberLoginDto dto){
         String email = dto.getEmail();
         String password = dto.getPassword();
@@ -48,6 +52,17 @@ public class MemberService {
         return passwordEncoder.matches(password, memberRepository.findMembersByEmail(email).getPassword());
     }
 
+    @Transactional(readOnly = true)
+    public MemberResponse searchMemberByEmail(String email){
+
+        Members members = memberRepository.findMembersByEmail(email);
+        if(members == null)
+            throw new UsernameNotFoundException(email);
+
+        return toResponse(members);
+    }
+
+    @Transactional(readOnly = true)
     public MemberResponse getMember(long idx){
         Members members = memberRepository.findMembersByMemberIdx(idx);
 
@@ -57,6 +72,7 @@ public class MemberService {
         return toResponse(members);
     }
 
+    @Transactional(readOnly = true)
     public List<MemberResponse> getMembersList(){
         List<Members> list = memberRepository.findAll();
         List<MemberResponse> result = new ArrayList<>();
@@ -67,6 +83,7 @@ public class MemberService {
         return result;
     }
 
+    @Transactional(readOnly = true)
     public List<MemberResponse> getFriendList(List<Long> list){
         List<Members> members = memberRepository.findMembersByMemberIdxIn(list);
         List<MemberResponse> response = new ArrayList<>();
@@ -78,6 +95,9 @@ public class MemberService {
 
     @Transactional
     public MemberResponse register(MemberRegisterDto dto){
+
+        if(memberRepository.existsMembersByEmail(dto.getEmail()))//이미 존재하는 이메일 주소
+            throw new UnAuthorizedException(ExceptionCode.EMAIL_ALREADY_EXISTS.getMessage(), ExceptionCode.EMAIL_ALREADY_EXISTS.getStatus());
 
         Members members = Members.builder()
                 .email(dto.getEmail())

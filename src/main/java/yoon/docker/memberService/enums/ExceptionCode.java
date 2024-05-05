@@ -4,7 +4,7 @@ import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 @Getter
-public enum ErrorCode {
+public enum ExceptionCode {
 
     //회원가입 에러코드
 
@@ -42,7 +42,7 @@ public enum ErrorCode {
 
     private final HttpStatus status;
 
-    ErrorCode(String message, HttpStatus status){
+    ExceptionCode(String message, HttpStatus status){
         this.message = message;
         this.status = status;
     }

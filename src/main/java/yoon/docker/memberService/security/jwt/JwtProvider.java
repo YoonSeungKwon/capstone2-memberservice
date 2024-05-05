@@ -41,6 +41,7 @@ public class JwtProvider {
 
         return  Jwts.builder()
                 .setHeaderParam("typ", "JWT")
+                .setHeaderParam("alg", "HMAC")
                 .setClaims(claims)
                 .claim("username", id)
                 .signWith(getSecretKey())
@@ -55,6 +56,7 @@ public class JwtProvider {
 
         return  Jwts.builder()
                 .setHeaderParam("typ", "JWT")
+                .setHeaderParam("alg", "HMAC")
                 .setClaims(claims)
                 .signWith(getSecretKey())
                 .compact();

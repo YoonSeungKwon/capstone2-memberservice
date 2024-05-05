@@ -115,6 +115,15 @@ public class MemberController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
+    @Operation(summary = "친구 추가를 위해 이메일로 유저 검색")
+    @GetMapping("/search/{email}")
+    public ResponseEntity<MemberResponse> searchFriend(@PathVariable String email){
+
+        MemberResponse result = memberService.searchMemberByEmail(email);
+
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
     @Operation(summary = "회원 정보 수정 프로필 사진")
     @PutMapping("/profile/{idx}")
     public ResponseEntity<MemberResponse> updateProfile(@io.swagger.v3.oas.annotations.parameters.RequestBody(

@@ -1,8 +1,6 @@
 services:
   member-svc:
     container_name: member-svc
-    build:
-      context: /memberService
     depends_on:
       - mydb
     ports:

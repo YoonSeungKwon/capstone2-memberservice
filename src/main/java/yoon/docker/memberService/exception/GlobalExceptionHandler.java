@@ -1,6 +1,5 @@
 package yoon.docker.memberService.exception;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -8,7 +7,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import yoon.docker.memberService.enums.ErrorCode;
+import yoon.docker.memberService.enums.ExceptionCode;
 
 import java.util.Objects;
 
@@ -16,13 +15,13 @@ import java.util.Objects;
 public class GlobalExceptionHandler {
     @ExceptionHandler({UsernameNotFoundException.class})
     public ResponseEntity<String> UserNameNotFoundError(){
-        ErrorCode code = ErrorCode.EMAIL_NOT_FOUND;
+        ExceptionCode code = ExceptionCode.EMAIL_NOT_FOUND;
         return new ResponseEntity<>(code.getMessage(), code.getStatus());
     }
 
     @ExceptionHandler({BadCredentialsException.class})
     public ResponseEntity<String> BadCredentialError(){
-        ErrorCode code = ErrorCode.INVALID_PASSWORD;
+        ExceptionCode code = ExceptionCode.INVALID_PASSWORD;
         return new ResponseEntity<>(code.getMessage(), code.getStatus());
     }
 
@@ -31,26 +30,30 @@ public class GlobalExceptionHandler {
         BindingResult bindingResult = e.getBindingResult();
         String error = bindingResult.getAllErrors().get(0).getDefaultMessage();
 
-        ErrorCode code = switch (Objects.requireNonNull(error)) {
-            case "INVALID_EMAIL_FORMAT" -> ErrorCode.INVALID_EMAIL_FORMAT;
+        ExceptionCode code = switch (Objects.requireNonNull(error)) {
+            case "INVALID_EMAIL_FORMAT" -> ExceptionCode.INVALID_EMAIL_FORMAT;
 
-            case "EMPTY_EMAIL_FIELD" -> ErrorCode.EMPTY_EMAIL_FIELD;
+            case "EMPTY_EMAIL_FIELD" -> ExceptionCode.EMPTY_EMAIL_FIELD;
 
-            case "EMPTY_PASSWORD_FIELD" -> ErrorCode.EMPTY_PASSWORD_FIELD;
+            case "EMPTY_PASSWORD_FIELD" -> ExceptionCode.EMPTY_PASSWORD_FIELD;
 
-            case "INVALID_PASSWORD_LENGTH" -> ErrorCode.INVALID_PASSWORD_LENGTH;
+            case "INVALID_PASSWORD_LENGTH" -> ExceptionCode.INVALID_PASSWORD_LENGTH;
 
-            case "EMPTY_USERNAME_FIELD" -> ErrorCode.EMPTY_USERNAME_FIELD;
+            case "EMPTY_USERNAME_FIELD" -> ExceptionCode.EMPTY_USERNAME_FIELD;
 
-            case "EMPTY_PHONE_NUMBER" -> ErrorCode.EMPTY_PHONE_NUMBER;
+            case "EMPTY_PHONE_NUMBER" -> ExceptionCode.EMPTY_PHONE_NUMBER;
 
-            case "INVALID_PHONE_NUMBER" -> ErrorCode.INVALID_PHONE_NUMBER;
+            case "INVALID_PHONE_NUMBER" -> ExceptionCode.INVALID_PHONE_NUMBER;
 
-            default -> ErrorCode.INTERNAL_SERVER_ERROR;
+            default -> ExceptionCode.INTERNAL_SERVER_ERROR;
         };
 
         return new ResponseEntity<>(code.getMessage(), code.getStatus());
     }
 
+    @ExceptionHandler({UnAuthorizedException.class})
+    public ResponseEntity<String> unAuthException(UnAuthorizedException e){
+        return new ResponseEntity<>(e.getMessage(),e.getStatus());
+    }
 
 }
