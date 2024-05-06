@@ -9,10 +9,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import yoon.docker.memberService.dto.request.MemberLoginDto;
 import yoon.docker.memberService.dto.request.MemberRegisterDto;
 import yoon.docker.memberService.dto.request.MemberUpdateDto;
+import yoon.docker.memberService.dto.request.RegisterDto;
 import yoon.docker.memberService.dto.response.MemberResponse;
 import yoon.docker.memberService.entity.Members;
 import yoon.docker.memberService.enums.ExceptionCode;
@@ -94,7 +96,7 @@ public class MemberService {
     }
 
     @Transactional
-    public MemberResponse register(MemberRegisterDto dto){
+    public MemberResponse register(RegisterDto dto){
 
         if(memberRepository.existsMembersByEmail(dto.getEmail()))//이미 존재하는 이메일 주소
             throw new UnAuthorizedException(ExceptionCode.EMAIL_ALREADY_EXISTS.getMessage(), ExceptionCode.EMAIL_ALREADY_EXISTS.getStatus());

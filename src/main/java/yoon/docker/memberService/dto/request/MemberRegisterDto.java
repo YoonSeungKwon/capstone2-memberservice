@@ -10,7 +10,7 @@ import org.hibernate.validator.constraints.Length;
 import yoon.docker.memberService.validation.ValidationGroup;
 
 @Getter
-public class MemberRegisterDto {
+public class MemberRegisterDto implements RegisterDto {
 
     @Schema(description = "이메일", example = "example@example.com")
     @Email(message = "INVALID_EMAIL_FORMAT", groups = ValidationGroup.EmailFormat.class)
