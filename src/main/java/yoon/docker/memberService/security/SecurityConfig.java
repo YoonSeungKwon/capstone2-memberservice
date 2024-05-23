@@ -50,7 +50,8 @@ public class SecurityConfig {
 
         configuration.setAllowedOrigins(List.of(
                 origin,
-                "*"
+                "*",
+                "http://localhost:3000"
                 ));
         configuration.setAllowedMethods(List.of("*"));
         configuration.setAllowedHeaders(List.of("*"));

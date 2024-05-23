@@ -10,6 +10,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import yoon.docker.memberService.enums.Provider;
 import yoon.docker.memberService.enums.Role;
 
 import java.time.LocalDateTime;
@@ -52,6 +53,9 @@ public class Members {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @Enumerated(EnumType.STRING)
+    private Provider provider;
+
     @Column(nullable = true, length = 255)
     private String refresh;
 
@@ -71,6 +75,7 @@ public class Members {
         this.username = name;
         this.phone = phone;
         this.role = role;
+        this.provider = Provider.NULL;
     }
 
     public Collection<GrantedAuthority> getAuthority(){
