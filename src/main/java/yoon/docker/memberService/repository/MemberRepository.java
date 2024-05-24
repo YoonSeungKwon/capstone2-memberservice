@@ -20,8 +20,6 @@ public interface MemberRepository extends JpaRepository<Members, Long> {
 
     void deleteByMemberIdx(long idx);
 
-    Members findMembersByRefresh(String token);
-
     List<Members> findMembersByMemberIdxIn(List<Long> list);
 
 }
