@@ -26,6 +26,11 @@ public enum ExceptionCode {
 
     INVALID_PHONE_NUMBER("전화번호를 올바르게 입력해 주세요.", HttpStatus.BAD_REQUEST),
 
+    //유틸 에러
+
+    NOT_IMAGE_FORMAT("파일의 형식이 올바르지 않습니다.", HttpStatus.BAD_REQUEST),
+
+    FILE_SIZE_EXCEEDED( "10MB 이하의 파일만 업로드 할 수 있습니다.", HttpStatus.BAD_REQUEST),
 
     //로그인 에러코드
 
@@ -35,6 +40,8 @@ public enum ExceptionCode {
 
     INTERNAL_SERVER_ERROR("알 수 없는 에러. 개발자에게 알려주세요.", HttpStatus.INTERNAL_SERVER_ERROR),
 
+    //인증 에러
+    UNAUTHORIZED_ACCESS("인증되지 않은 접근입니다.", HttpStatus.UNAUTHORIZED),
     ;
 
 

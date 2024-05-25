@@ -1,5 +1,7 @@
 package yoon.docker.memberService.exception;
 
+import org.apache.tomcat.util.http.fileupload.impl.FileSizeLimitExceededException;
+import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -7,6 +9,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import yoon.docker.memberService.enums.ExceptionCode;
 
 import java.util.Objects;
@@ -55,5 +58,16 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> unAuthException(UnAuthorizedException e){
         return new ResponseEntity<>(e.getMessage(),e.getStatus());
     }
+
+    @ExceptionHandler({UtilException.class})
+    public ResponseEntity<String> utilException(UtilException e){
+        return new ResponseEntity<>(e.getMessage(),e.getStatus());
+    }
+
+    @ExceptionHandler({FileSizeLimitExceededException.class, SizeLimitExceededException.class, MaxUploadSizeExceededException.class})
+    public ResponseEntity<String> FileSizeError(){
+        return new ResponseEntity<>(ExceptionCode.FILE_SIZE_EXCEEDED.getMessage(), ExceptionCode.FILE_SIZE_EXCEEDED.getStatus());
+    }
+
 
 }

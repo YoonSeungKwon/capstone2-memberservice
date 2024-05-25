@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import yoon.docker.memberService.dto.request.MemberLoginDto;
 import yoon.docker.memberService.dto.request.MemberRegisterDto;
 import yoon.docker.memberService.dto.request.MemberUpdateDto;
@@ -32,7 +33,7 @@ public class MemberController {
 
     @Operation(summary = "관리자용 멤버 리스트 불러오기")
     @GetMapping("/lists")
-    public ResponseEntity<List<MemberResponse>> getMembersList(){
+    public ResponseEntity<List<MemberResponse>> getAllMembers(){
 
         List<MemberResponse> result = memberService.getMembersList();
 
@@ -50,7 +51,7 @@ public class MemberController {
 
     @Operation(summary = "관리자용 멤버 개인 불러오기")
     @GetMapping("/{idx}")
-    public ResponseEntity<MemberResponse> getMembersList(@io.swagger.v3.oas.annotations.parameters.RequestBody(
+    public ResponseEntity<MemberResponse> getMemberByIdx(@io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "유저 인덱스", required = true) @PathVariable long idx){
 
         MemberResponse result = memberService.getMember(idx);
@@ -124,16 +125,14 @@ public class MemberController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
-    @Operation(summary = "회원 정보 수정 프로필 사진")
-    @PutMapping("/profile/{idx}")
-    public ResponseEntity<MemberResponse> updateProfile(@io.swagger.v3.oas.annotations.parameters.RequestBody(
-            description = "아직 스토리지 서버가 없어서 미구현 상태, 문자로 저장 가능", required = true, content = @Content(mediaType = "application/json"
-            , schema = @Schema(implementation = MemberUpdateDto.class)))
-                                                       @PathVariable long idx, @RequestBody String profile){
 
-        MemberResponse result = memberService.updateProfile(idx, profile);
+    @Operation(summary = "사용자 프로필 변경")
+    @PatchMapping("/profile")
+    public ResponseEntity<?> updateProfile(@RequestParam("file") MultipartFile file){
 
-        return new ResponseEntity<>(result, HttpStatus.OK);
+        memberService.updateProfile(file);
+
+        return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
     }
 
 
@@ -146,4 +145,6 @@ public class MemberController {
 
         return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
     }
+
+
 }
