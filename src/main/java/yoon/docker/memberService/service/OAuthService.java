@@ -14,7 +14,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-import yoon.docker.memberService.dto.response.*;
+import yoon.docker.memberService.dto.response.GoogleAccount;
+import yoon.docker.memberService.dto.response.KakaoAccount;
+import yoon.docker.memberService.dto.response.MemberResponse;
+import yoon.docker.memberService.dto.response.NaverAccount;
 import yoon.docker.memberService.entity.Members;
 import yoon.docker.memberService.enums.ExceptionCode;
 import yoon.docker.memberService.enums.Provider;
@@ -31,31 +34,31 @@ public class OAuthService {
 
     private final MemberRepository memberRepository;
 
-    @Value("KAKAO_SECRET")
+    @Value("${KAKAO_SECRET}")
     private String kakaoSecret;
 
-    @Value("KAKAO_ID")
+    @Value("${KAKAO_ID}")
     private String kakaoId;
 
-    @Value("KAKAO_URI")
+    @Value("${KAKAO_URI}")
     private String kakaoUri;
 
-    @Value("NAVER_ID")
+    @Value("${NAVER_ID}")
     private String naverId;
 
-    @Value("NAVER_SECRET")
+    @Value("${NAVER_SECRET}")
     private String naverSecret;
 
-    @Value("NAVER_URI")
+    @Value("${NAVER_URI}")
     private String naverUri;
 
-    @Value("GOOGLE_ID")
+    @Value("${GOOGLE_ID}")
     private String googleId;
 
-    @Value("GOOGLE_SECRET")
+    @Value("${GOOGLE_SECRET}")
     private String googleSecret;
 
-    @Value("GOOGLE_URI")
+    @Value("${GOOGLE_URI}")
     private String googleUri;
 
     private MemberResponse toResponse(Members members){
@@ -103,9 +106,11 @@ public class OAuthService {
 
         HttpEntity<MultiValueMap<String, String>> kakaoRequest = new HttpEntity<>(body, headers);
 
-        ResponseEntity<KakaoResponse> kakaoResponse = template.exchange("https://kauth.kakao.com/oauth/token", HttpMethod.POST, kakaoRequest, KakaoResponse.class);
+        ResponseEntity<String> kakaoResponse = template.exchange("https://kauth.kakao.com/oauth/token", HttpMethod.POST, kakaoRequest, String.class);
 
-        KakaoAccount kakaoAccount = getKakaoAccount(kakaoResponse.getBody().getAccess_token());
+        JSONObject json = new JSONObject(kakaoResponse.getBody());
+
+        KakaoAccount kakaoAccount = getKakaoAccount(String.valueOf(json.get("access_token")));
 
         if(memberRepository.existsMembersByEmail(kakaoAccount.getEmail())
                 && memberRepository.findMembersByEmail(kakaoAccount.getEmail()).getProvider() != Provider.KAKAO)

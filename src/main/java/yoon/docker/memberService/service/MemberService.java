@@ -5,7 +5,6 @@ import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -48,18 +47,18 @@ public class MemberService {
     private final String bucket = "pinkok-storage";
     private final String region = "ap-northeast-2";
 
-    private MemberResponse toResponse(Members members){
+    private MemberResponse toResponse(Members members) {
         return new MemberResponse(members.getMemberIdx(), members.getEmail(), members.getUsername()
                 , members.getProfile(), members.getCreatedAt(), members.getUpdatedAt());
     }
 
     @Transactional(readOnly = true)
-    public boolean emailCheck(String email){
+    public boolean emailCheck(String email) {
         return memberRepository.existsMembersByEmail(email);
     }
 
     @Transactional(readOnly = true)
-    public boolean checkPassword(MemberLoginDto dto){
+    public boolean checkPassword(MemberLoginDto dto) {
         String email = dto.getEmail();
         String password = dto.getPassword();
 
@@ -67,50 +66,50 @@ public class MemberService {
     }
 
     @Transactional(readOnly = true)
-    public MemberResponse searchMemberByEmail(String email){
+    public MemberResponse searchMemberByEmail(String email) {
 
         Members members = memberRepository.findMembersByEmail(email);
-        if(members == null)
+        if (members == null)
             throw new UsernameNotFoundException(email);
 
         return toResponse(members);
     }
 
     @Transactional(readOnly = true)
-    public MemberResponse getMember(long idx){
+    public MemberResponse getMember(long idx) {
         Members members = memberRepository.findMembersByMemberIdx(idx);
 
-        if(members == null)
+        if (members == null)
             throw new UsernameNotFoundException(String.valueOf(idx));
 
         return toResponse(members);
     }
 
     @Transactional(readOnly = true)
-    public List<MemberResponse> getMembersList(){
+    public List<MemberResponse> getMembersList() {
         List<Members> list = memberRepository.findAll();
         List<MemberResponse> result = new ArrayList<>();
 
-        for(Members m : list){
+        for (Members m : list) {
             result.add(toResponse(m));
         }
         return result;
     }
 
     @Transactional(readOnly = true)
-    public List<MemberResponse> getFriendList(List<Long> list){
+    public List<MemberResponse> getFriendList(List<Long> list) {
         List<Members> members = memberRepository.findMembersByMemberIdxIn(list);
         List<MemberResponse> response = new ArrayList<>();
-        for(Members m: members){
+        for (Members m : members) {
             response.add(toResponse(m));
         }
         return response;
     }
 
     @Transactional
-    public MemberResponse register(RegisterDto dto){
+    public MemberResponse register(RegisterDto dto) {
 
-        if(memberRepository.existsMembersByEmail(dto.getEmail()))//이미 존재하는 이메일 주소
+        if (memberRepository.existsMembersByEmail(dto.getEmail()))//이미 존재하는 이메일 주소
             throw new UnAuthorizedException(ExceptionCode.EMAIL_ALREADY_EXISTS.getMessage(), ExceptionCode.EMAIL_ALREADY_EXISTS.getStatus());
 
         Members members = Members.builder()
@@ -127,14 +126,14 @@ public class MemberService {
     }
 
     @Transactional
-    public MemberResponse login(MemberLoginDto dto, HttpServletResponse response){
+    public MemberResponse login(MemberLoginDto dto, HttpServletResponse response) {
         String email = dto.getEmail();
         String password = dto.getPassword();
         Members members = memberRepository.findMembersByEmail(email);
 
-        if(members == null)
+        if (members == null)
             throw new UsernameNotFoundException(email);
-        if(!passwordEncoder.matches(password, members.getPassword()))
+        if (!passwordEncoder.matches(password, members.getPassword()))
             throw new BadCredentialsException(email);
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(
@@ -156,7 +155,7 @@ public class MemberService {
     }
 
     @Transactional
-    public MemberResponse updatePassword(long idx, MemberUpdateDto dto){
+    public MemberResponse updatePassword(long idx, MemberUpdateDto dto) {
         String password = dto.getPassword();
 
         Members members = memberRepository.findMembersByMemberIdx(idx);
@@ -167,14 +166,14 @@ public class MemberService {
     }
 
     @Transactional
-    public void deleteMember(long idx){
+    public void deleteMember(long idx) {
 
         memberRepository.deleteByMemberIdx(idx);
 
     }
 
     @Transactional
-    public void updateProfile(MultipartFile file){
+    public void updateProfile(MultipartFile file) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null || authentication instanceof AnonymousAuthenticationToken)
@@ -196,7 +195,7 @@ public class MemberService {
             objectMetadata.setContentLength(file.getSize());
             System.out.println(file.getContentType());
             url = fileUrl;
-            amazonS3Client.putObject(bucket +"/members/" + currentMember.getMemberIdx(), fileName, file.getInputStream(), objectMetadata);
+            amazonS3Client.putObject(bucket + "/members/" + currentMember.getMemberIdx(), fileName, file.getInputStream(), objectMetadata);
 
             String currentProfileUrl = currentMember.getProfile();
 
@@ -208,7 +207,7 @@ public class MemberService {
             currentMember.setProfile(url);
             memberRepository.save(currentMember);
 
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new UtilException(ExceptionCode.INTERNAL_SERVER_ERROR.getMessage(), ExceptionCode.INTERNAL_SERVER_ERROR.getStatus());
         }
 
