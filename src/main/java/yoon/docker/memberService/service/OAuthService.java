@@ -1,5 +1,8 @@
 package yoon.docker.memberService.service;
 
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONObject;
@@ -14,15 +17,16 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-import yoon.docker.memberService.dto.response.GoogleAccount;
-import yoon.docker.memberService.dto.response.KakaoAccount;
+import yoon.docker.memberService.dto.request.GoogleAccount;
+import yoon.docker.memberService.dto.request.KakaoAccount;
 import yoon.docker.memberService.dto.response.MemberResponse;
-import yoon.docker.memberService.dto.response.NaverAccount;
+import yoon.docker.memberService.dto.request.NaverAccount;
 import yoon.docker.memberService.entity.Members;
 import yoon.docker.memberService.enums.ExceptionCode;
 import yoon.docker.memberService.enums.Provider;
 import yoon.docker.memberService.enums.Role;
 import yoon.docker.memberService.exception.UnAuthorizedException;
+import yoon.docker.memberService.exception.UtilException;
 import yoon.docker.memberService.repository.MemberRepository;
 import yoon.docker.memberService.security.jwt.JwtProvider;
 
@@ -33,6 +37,11 @@ public class OAuthService {
     private final JwtProvider jwtProvider;
 
     private final MemberRepository memberRepository;
+
+    private final AmazonS3Client amazonS3Client;
+
+    private final String bucket = "pinkok-storage";
+    private final String region = "ap-northeast-2";
 
     @Value("${KAKAO_SECRET}")
     private String kakaoSecret;
@@ -63,7 +72,7 @@ public class OAuthService {
 
     private MemberResponse toResponse(Members members){
         return new MemberResponse(members.getMemberIdx(), members.getEmail(), members.getUsername()
-                , members.getProfile(), members.getCreatedAt(), members.getUpdatedAt());
+                , members.getProfile(), String.valueOf(members.getCreatedAt()), String.valueOf(members.getUpdatedAt()));
     }
 
     public KakaoAccount getKakaoAccount(String token){
@@ -89,28 +98,26 @@ public class OAuthService {
     }
 
     @Transactional
-    public MemberResponse kakaoLogin(String code, HttpServletResponse response){
+    public MemberResponse kakaoLogin(KakaoAccount kakaoAccount, HttpServletResponse response){
 
-        RestTemplate template = new RestTemplate();
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
-
-        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-
-        body.add("grant_type", "authorization_code");
-        body.add("client_id", kakaoId);
-        body.add("redirect_uri", kakaoUri);
-        body.add("code", code);
-        body.add("client_secret", kakaoSecret);
-
-        HttpEntity<MultiValueMap<String, String>> kakaoRequest = new HttpEntity<>(body, headers);
-
-        ResponseEntity<String> kakaoResponse = template.exchange("https://kauth.kakao.com/oauth/token", HttpMethod.POST, kakaoRequest, String.class);
-
-        JSONObject json = new JSONObject(kakaoResponse.getBody());
-
-        KakaoAccount kakaoAccount = getKakaoAccount(String.valueOf(json.get("access_token")));
+//        RestTemplate template = new RestTemplate();
+//
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
+//
+//        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+//
+//        body.add("grant_type", "authorization_code");
+//        body.add("client_id", kakaoId);
+//        body.add("redirect_uri", kakaoUri);
+//        body.add("code", code);
+//        body.add("client_secret", kakaoSecret);
+//
+//        HttpEntity<MultiValueMap<String, String>> kakaoRequest = new HttpEntity<>(body, headers);
+//
+//        ResponseEntity<String> kakaoResponse = template.exchange("https://kauth.kakao.com/oauth/token", HttpMethod.POST, kakaoRequest, String.class);
+//
+//        JSONObject json = new JSONObject(kakaoResponse.getBody());
 
         if(memberRepository.existsMembersByEmail(kakaoAccount.getEmail())
                 && memberRepository.findMembersByEmail(kakaoAccount.getEmail()).getProvider() != Provider.KAKAO)
@@ -144,6 +151,7 @@ public class OAuthService {
                 .role(Role.USER)
                 .build();
         members.setProvider(Provider.KAKAO);
+        members.setProfile(account.getProfile());
         members.setOauth(true);
 
         memberRepository.save(members);
@@ -172,31 +180,31 @@ public class OAuthService {
     }
 
     @Transactional
-    public MemberResponse naverLogin(String code, HttpServletResponse response){
-        RestTemplate template = new RestTemplate();
+    public MemberResponse naverLogin(NaverAccount naverAccount, HttpServletResponse response){
+//        RestTemplate template = new RestTemplate();
+//
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
+//
+//        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+//
+//        body.add("grant_type", "authorization_code");
+//        body.add("client_id", naverId);
+//        body.add("redirect_uri", naverUri);
+//        body.add("code", code);
+//        body.add("client_secret", naverSecret);
+//        body.add("state", "state");
+//
+//        HttpEntity<MultiValueMap<String, String>> naverRequest = new HttpEntity<>(body, headers);
+//
+//        System.out.println(code);
+//
+//        ResponseEntity<String> naverResponse = template.exchange("https://nid.naver.com/oauth2.0/token", HttpMethod.POST, naverRequest, String.class);
+//
+//        JSONObject json = new JSONObject(naverResponse.getBody());
+//        String token = (String) json.get("access_token");
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
-
-        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-
-        body.add("grant_type", "authorization_code");
-        body.add("client_id", naverId);
-        body.add("redirect_uri", naverUri);
-        body.add("code", code);
-        body.add("client_secret", naverSecret);
-        body.add("state", "state");
-
-        HttpEntity<MultiValueMap<String, String>> naverRequest = new HttpEntity<>(body, headers);
-
-        System.out.println(code);
-
-        ResponseEntity<String> naverResponse = template.exchange("https://nid.naver.com/oauth2.0/token", HttpMethod.POST, naverRequest, String.class);
-
-        JSONObject json = new JSONObject(naverResponse.getBody());
-        String token = (String) json.get("access_token");
-
-        NaverAccount naverAccount = getNaverAccount(token);
+//        NaverAccount naverAccount = dto;
 
         if(memberRepository.existsMembersByEmail(naverAccount.getEmail())
                 && memberRepository.findMembersByEmail(naverAccount.getEmail()).getProvider() != Provider.NAVER)
@@ -231,6 +239,7 @@ public class OAuthService {
                 .build();
         members.setProvider(Provider.NAVER);
         members.setOauth(true);
+        members.setProfile(account.getProfile());
 
         memberRepository.save(members);
     }
@@ -256,32 +265,32 @@ public class OAuthService {
     }
 
     @Transactional
-    public MemberResponse googleLogin(String code, HttpServletResponse response){
+    public MemberResponse googleLogin(GoogleAccount googleAccount, HttpServletResponse response){
 
-        RestTemplate template = new RestTemplate();
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
-
-        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-
-        body.add("grant_type", "authorization_code");
-        body.add("client_id", googleId);
-        body.add("redirect_uri", googleUri);
-        body.add("code", code);
-        body.add("client_secret", googleSecret);
-
-        HttpEntity<MultiValueMap<String, String>> naverRequest = new HttpEntity<>(body, headers);
-
-        System.out.println(code);
-
-        ResponseEntity<String> naverResponse = template.exchange("https://oauth2.googleapis.com/token", HttpMethod.POST, naverRequest, String.class);
-
-        JSONObject json = new JSONObject(naverResponse.getBody());
-        String token = (String) json.get("access_token");
-
-        GoogleAccount googleAccount = getGoogleAccount(token);
-
+//        RestTemplate template = new RestTemplate();
+//
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
+//
+//        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+//
+//        body.add("grant_type", "authorization_code");
+//        body.add("client_id", googleId);
+//        body.add("redirect_uri", googleUri);
+//        body.add("code", code);
+//        body.add("client_secret", googleSecret);
+//
+//        HttpEntity<MultiValueMap<String, String>> naverRequest = new HttpEntity<>(body, headers);
+//
+//        System.out.println(code);
+//
+//        ResponseEntity<String> naverResponse = template.exchange("https://oauth2.googleapis.com/token", HttpMethod.POST, naverRequest, String.class);
+//
+//        JSONObject json = new JSONObject(naverResponse.getBody());
+//        String token = (String) json.get("access_token");
+//
+//        GoogleAccount googleAccount = getGoogleAccount(token);
+        System.out.println();
         if(memberRepository.existsMembersByEmail(googleAccount.getEmail())
                 && memberRepository.findMembersByEmail(googleAccount.getEmail()).getProvider() != Provider.GOOGLE)
             throw new UnAuthorizedException(ExceptionCode.EMAIL_ALREADY_EXISTS.getMessage(), ExceptionCode.EMAIL_ALREADY_EXISTS.getStatus());
@@ -315,6 +324,7 @@ public class OAuthService {
                 .build();
         members.setProvider(Provider.GOOGLE);
         members.setOauth(true);
+        members.setProfile(account.getProfile());
 
         memberRepository.save(members);
     }

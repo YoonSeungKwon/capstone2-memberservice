@@ -49,7 +49,7 @@ public class MemberService {
 
     private MemberResponse toResponse(Members members) {
         return new MemberResponse(members.getMemberIdx(), members.getEmail(), members.getUsername()
-                , members.getProfile(), members.getCreatedAt(), members.getUpdatedAt());
+                , members.getProfile(), String.valueOf(members.getCreatedAt()), String.valueOf(members.getUpdatedAt()));
     }
 
     @Transactional(readOnly = true)
@@ -173,7 +173,21 @@ public class MemberService {
     }
 
     @Transactional
-    public void updateProfile(MultipartFile file) {
+    public MemberResponse updateName(String name){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || authentication instanceof AnonymousAuthenticationToken)
+            throw new UnAuthorizedException(ExceptionCode.UNAUTHORIZED_ACCESS.getMessage(), ExceptionCode.UNAUTHORIZED_ACCESS.getStatus()); //로그인 되지 않았거나 만료됨
+
+        Members currentMember = (Members) authentication.getPrincipal();
+
+        currentMember.setUsername(name);
+
+        return toResponse(memberRepository.save(currentMember));
+    }
+
+    @Transactional
+    public MemberResponse updateProfile(MultipartFile file) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null || authentication instanceof AnonymousAuthenticationToken)
@@ -205,7 +219,7 @@ public class MemberService {
             }
 
             currentMember.setProfile(url);
-            memberRepository.save(currentMember);
+            return toResponse(memberRepository.save(currentMember));
 
         } catch (Exception e) {
             throw new UtilException(ExceptionCode.INTERNAL_SERVER_ERROR.getMessage(), ExceptionCode.INTERNAL_SERVER_ERROR.getStatus());

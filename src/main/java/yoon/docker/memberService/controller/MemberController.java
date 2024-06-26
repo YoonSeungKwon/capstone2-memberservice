@@ -127,12 +127,21 @@ public class MemberController {
 
 
     @Operation(summary = "사용자 프로필 변경")
-    @PatchMapping("/profile")
-    public ResponseEntity<?> updateProfile(@RequestParam("file") MultipartFile file){
+    @PostMapping("/profile")
+    public ResponseEntity<MemberResponse> updateProfile(@RequestParam("file") MultipartFile file){
 
-        memberService.updateProfile(file);
+        MemberResponse result = memberService.updateProfile(file);
 
-        return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    @Operation(summary = "닉네임 변경")
+    @PatchMapping("/name")
+    public ResponseEntity<MemberResponse> updateUsername(@RequestBody String name){
+
+        MemberResponse result = memberService.updateName(name);
+
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
 

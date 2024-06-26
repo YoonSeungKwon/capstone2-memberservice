@@ -2,14 +2,19 @@ package yoon.docker.memberService.controller;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import yoon.docker.memberService.dto.request.GoogleAccount;
+import yoon.docker.memberService.dto.request.KakaoAccount;
+import yoon.docker.memberService.dto.request.NaverAccount;
 import yoon.docker.memberService.dto.response.MemberResponse;
 import yoon.docker.memberService.service.OAuthService;
+
+import java.io.IOException;
+import java.net.URI;
+import java.net.URLEncoder;
 
 @RestController
 @RequiredArgsConstructor
@@ -18,27 +23,26 @@ public class OAuthController {
 
     private final OAuthService oAuthService;
 
+    @PostMapping("/login/kakao")
+    public ResponseEntity<MemberResponse> kakaoAccessLogin(@RequestBody KakaoAccount dto, HttpServletResponse response){
 
-    @GetMapping("/callback/kakao")
-    public ResponseEntity<MemberResponse> kakaoAuth(@RequestParam("code") String code, HttpServletResponse response){
-
-        MemberResponse result = oAuthService.kakaoLogin(code, response);
-
-        return new ResponseEntity<>(result, HttpStatus.OK);
-    }
-
-    @GetMapping("/callback/naver")
-    public ResponseEntity<MemberResponse> naverAuth(@RequestParam("code") String code, HttpServletResponse response){
-
-        MemberResponse result = oAuthService.naverLogin(code, response);
+        MemberResponse result = oAuthService.kakaoLogin(dto, response);
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
-    @GetMapping("/callback/google")
-    public ResponseEntity<MemberResponse> googleAuth(@RequestParam("code") String code, HttpServletResponse response){
+    @PostMapping("/login/naver")
+    public ResponseEntity<MemberResponse> naverAccessLogin(@RequestBody NaverAccount dto, HttpServletResponse response){
 
-        MemberResponse result = oAuthService.googleLogin(code, response);
+        MemberResponse result = oAuthService.naverLogin(dto, response);
+
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    @PostMapping("/login/google")
+    public ResponseEntity<MemberResponse> googleAccessLogin(@RequestBody GoogleAccount dto, HttpServletResponse response){
+
+        MemberResponse result = oAuthService.googleLogin(dto, response);
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }

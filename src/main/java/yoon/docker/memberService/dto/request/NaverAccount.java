@@ -1,11 +1,11 @@
-package yoon.docker.memberService.dto.response;
+package yoon.docker.memberService.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class GoogleAccount {
+public class NaverAccount {
 
     private String email;
 

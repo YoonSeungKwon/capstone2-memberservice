@@ -17,6 +17,8 @@ public interface MemberRepository extends JpaRepository<Members, Long> {
 
     Members findMembersByRefresh(String token);
 
+    boolean existsMembersByUsername(String name);
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     boolean existsMembersByEmail(String email);
 

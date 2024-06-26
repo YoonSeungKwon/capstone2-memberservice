@@ -17,8 +17,8 @@ public class MemberResponse {
 
     private String profile;
 
-    private LocalDateTime createdAt;
+    private String createdAt;
 
-    private LocalDateTime updatedAt;
+    private String updatedAt;
 
 }
