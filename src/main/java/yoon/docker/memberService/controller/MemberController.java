@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import yoon.docker.memberService.dto.request.MailDto;
 import yoon.docker.memberService.dto.request.MemberLoginDto;
 import yoon.docker.memberService.dto.request.MemberRegisterDto;
 import yoon.docker.memberService.dto.request.MemberUpdateDto;
@@ -153,6 +154,33 @@ public class MemberController {
         memberService.deleteMember(idx);
 
         return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+    }
+
+    @GetMapping("/mail/auth")
+    public ResponseEntity<Boolean> mail(@RequestBody MailDto dto){
+
+
+        boolean result = memberService.sendMail(dto.getEmail());
+
+        if(result){
+            return new ResponseEntity<>(true, HttpStatus.OK);
+        }else{
+            return new ResponseEntity<>(false, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
+
+    @PostMapping("/mail/auth")
+    public ResponseEntity<Boolean> check(@RequestBody MailDto dto){
+
+        boolean result = memberService.checkMail(dto);
+
+        if(result){
+            return new ResponseEntity<>(true, HttpStatus.OK);
+        }else{
+            return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
+        }
+
     }
 
 

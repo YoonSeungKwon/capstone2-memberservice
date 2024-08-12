@@ -5,6 +5,10 @@ import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.redisson.api.RBucket;
+import org.redisson.api.RedissonClient;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,6 +19,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import yoon.docker.memberService.dto.request.MailDto;
 import yoon.docker.memberService.dto.request.MemberLoginDto;
 import yoon.docker.memberService.dto.request.MemberUpdateDto;
 import yoon.docker.memberService.dto.request.RegisterDto;
@@ -27,8 +32,10 @@ import yoon.docker.memberService.exception.UtilException;
 import yoon.docker.memberService.repository.MemberRepository;
 import yoon.docker.memberService.security.jwt.JwtProvider;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 @Service
@@ -41,11 +48,15 @@ public class MemberService {
 
     private final JwtProvider jwtProvider;
 
+    private final JavaMailSender javaMailSender;
+
     private final AmazonS3Client amazonS3Client;
 
     private final String DEFAULT_PROFILE = "https://pinkok-storage.s3.ap-northeast-2.amazonaws.com/members/default.png";
     private final String bucket = "pinkok-storage";
     private final String region = "ap-northeast-2";
+
+    private final RedissonClient redissonClient;
 
     private MemberResponse toResponse(Members members) {
         return new MemberResponse(members.getMemberIdx(), members.getEmail(), members.getUsername()
@@ -226,6 +237,46 @@ public class MemberService {
         }
 
 
+    }
+
+    public boolean sendMail(String email){
+
+        RBucket<String> rBucket = redissonClient.getBucket(email);
+
+        try {
+            Random random = new Random();
+
+            int code = random.nextInt(999999);
+            int pow = String.valueOf(code).length();
+
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < 6-pow; i++) {
+                sb.append("0");
+            }
+            sb.append(code);
+
+            String authCode = sb.toString();
+
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom("pinkoksvc1@gmail.com");
+            message.setTo(email);
+            message.setSubject("핀콕 회원가입 인증 코드");
+            message.setText("핀콕 서비스입니다. 아래의 인증코드를 입력하여 회원가입을 진행하여주세요."+"\n"+authCode);
+
+            javaMailSender.send(message);
+
+            rBucket.set(authCode, Duration.ofMinutes(6));
+
+            return true;
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean checkMail(MailDto dto){
+        RBucket<String> rBucket = redissonClient.getBucket(dto.getEmail());
+        return rBucket.get().equals(dto.getCode());
     }
 
 }
